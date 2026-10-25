@@ -112,3 +112,10 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Blender art sources: backups and Python cache
+ArtSource/*.blend1
+ArtSource/__pycache__/
+
+# Local Claude Code / MCP config (machine-specific paths)
+.mcp.json
