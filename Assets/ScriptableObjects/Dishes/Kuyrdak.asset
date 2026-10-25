@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96360a3c39a027a43bf71487dfd3a18d, type: 3}
+  m_Name: Kuyrdak
+  m_EditorClassIdentifier: Assembly-CSharp::NomadChef.Orders.DishRecipeSO
+  displayName: Kuyrdak
+  ingredients:
+  - {fileID: 11400000, guid: bd5c0f6943ad33443abe3678257abb4e, type: 2}
+  - {fileID: 11400000, guid: de88245c4931b1f47af5d3858ba268a8, type: 2}
+  points: 25
+  patience: 65
