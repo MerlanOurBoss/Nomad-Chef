@@ -514,6 +514,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   holdPoint: {fileID: 7057492136817897010}
+  throwSpeed: 8
+  throwLift: 3
+  throwHitMask:
+    serializedVersion: 2
+    m_Bits: 768
   tintRenderers:
   - {fileID: 1058928080594874187}
   - {fileID: 2662763151905687867}

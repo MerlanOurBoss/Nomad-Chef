@@ -16,3 +16,4 @@ MonoBehaviour:
   displayName: Dirty Plates
   iconColor: {r: 0.8, g: 0.76, b: 0.6399999, a: 1}
   canBeTrashed: 0
+  canBeThrown: 0

@@ -11,6 +11,7 @@ namespace NomadChef.KitchenObjects
         [SerializeField] private KitchenObjectSO data;
 
         private IKitchenObjectParent parent;
+        private bool hasHadParent; // a thrown item has no parent mid-air but isn't newly spawned
 
         /// <summary>Raised whenever any item changes hands. The bool is true when the item was just spawned.</summary>
         public static event Action<KitchenObject, IKitchenObjectParent, bool> AnyParentChanged;
@@ -43,7 +44,8 @@ namespace NomadChef.KitchenObjects
                 return;
             }
 
-            bool spawned = parent == null;
+            bool spawned = !hasHadParent;
+            hasHadParent = true;
             if (parent != null)
                 parent.KitchenObject = null;
 
@@ -55,6 +57,15 @@ namespace NomadChef.KitchenObjects
             transform.localRotation = Quaternion.identity;
 
             AnyParentChanged?.Invoke(this, parent, spawned);
+        }
+
+        /// <summary>Leaves its parent without getting a new one, e.g. while flying through the air.</summary>
+        public void Detach()
+        {
+            if (parent != null)
+                parent.KitchenObject = null;
+            parent = null;
+            transform.SetParent(null, true);
         }
 
         public bool TryGetPlate(out PlateKitchenObject plate)

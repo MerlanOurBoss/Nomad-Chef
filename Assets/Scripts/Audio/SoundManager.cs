@@ -7,7 +7,7 @@ using UnityEngine;
 namespace NomadChef.Audio
 {
     /// <summary>
-    /// Plays the one-shot game sounds: picking up / putting down, deliveries, orders, washed plates,
+    /// Plays the one-shot game sounds: picking up / putting down, throws, deliveries, orders, washed plates,
     /// the countdown and the final whistle. Looping station sounds live on the stations themselves.
     /// </summary>
     public class SoundManager : MonoBehaviour
@@ -19,6 +19,7 @@ namespace NomadChef.Audio
         [Header("Clips")]
         [SerializeField] private AudioClip pickup;
         [SerializeField] private AudioClip drop;
+        [SerializeField] private AudioClip throwWhoosh;
         [SerializeField] private AudioClip deliverySuccess;
         [SerializeField] private AudioClip deliveryFail;
         [SerializeField] private AudioClip orderNew;
@@ -35,6 +36,7 @@ namespace NomadChef.Audio
         private void Start()
         {
             KitchenObject.AnyParentChanged += OnItemMoved;
+            ThrownItem.AnyLaunched += OnThrown;
             orderManager.OrderAdded += OnOrderAdded;
             orderManager.OrderExpired += OnOrderExpired;
 
@@ -56,6 +58,7 @@ namespace NomadChef.Audio
         private void OnDestroy()
         {
             KitchenObject.AnyParentChanged -= OnItemMoved;
+            ThrownItem.AnyLaunched -= OnThrown;
             orderManager.OrderAdded -= OnOrderAdded;
             orderManager.OrderExpired -= OnOrderExpired;
 
@@ -99,6 +102,8 @@ namespace NomadChef.Audio
             else if (!spawned)
                 Play(drop);
         }
+
+        private void OnThrown(PlayerController thrower) => Play(throwWhoosh);
 
         private void OnOrderAdded(Order order) => Play(orderNew);
 

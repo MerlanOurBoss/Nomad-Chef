@@ -13,10 +13,13 @@ namespace NomadChef.KitchenObjects
         [SerializeField] private Color iconColor = Color.white;
         [Tooltip("Tools and plates must never be thrown away.")]
         [SerializeField] private bool canBeTrashed = true;
+        [Tooltip("Ingredients can be thrown to teammates and counters; plates and tools can't.")]
+        [SerializeField] private bool canBeThrown = true;
 
         public KitchenObject Prefab => prefab;
         public string DisplayName => displayName;
         public Color IconColor => iconColor;
         public bool CanBeTrashed => canBeTrashed;
+        public bool CanBeThrown => canBeThrown;
     }
 }

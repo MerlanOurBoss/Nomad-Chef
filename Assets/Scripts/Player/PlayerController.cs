@@ -31,6 +31,12 @@ namespace NomadChef.Player
         [SerializeField] private LayerMask counterLayerMask;
         [SerializeField] private Transform holdPoint;
 
+        [Header("Throw")]
+        [SerializeField] private float throwSpeed = 8f;
+        [SerializeField] private float throwLift = 3f;
+        [Tooltip("What a thrown ingredient can land on: counters and chefs (not walls, so it flies over the caravan gap).")]
+        [SerializeField] private LayerMask throwHitMask;
+
         [Header("Visuals")]
         [SerializeField] private Renderer[] tintRenderers;
 
@@ -168,13 +174,22 @@ namespace NomadChef.Player
             if (extinguisher != null)
                 extinguisher.SetSpraying(interactAlternateAction.IsPressed());
 
+            bool usePressed = interactAlternateAction.WasPressedThisFrame();
+
+            // Holding a throwable ingredient turns "use" into a throw.
+            if (usePressed && KitchenObject != null && KitchenObject.Data.CanBeThrown)
+            {
+                ThrownItem.Launch(KitchenObject, this, transform.forward * throwSpeed + Vector3.up * throwLift, throwHitMask);
+                return;
+            }
+
             if (selectedCounter == null || selectedCounter.IsOnFire)
                 return;
 
             if (interactAction.WasPressedThisFrame())
                 selectedCounter.Interact(this);
 
-            if (extinguisher == null && interactAlternateAction.WasPressedThisFrame())
+            if (extinguisher == null && usePressed)
                 selectedCounter.InteractAlternate(this);
         }
 

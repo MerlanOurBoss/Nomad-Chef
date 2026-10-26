@@ -6,7 +6,7 @@ namespace NomadChef.Player
 {
     /// <summary>
     /// Procedural chef animation: walk bob and leg/arm swing, arms forward while carrying,
-    /// chopping and scrubbing at work stations, a lean while dashing and gentle breathing at rest.
+    /// an overhand throw, chopping and scrubbing at work stations, a lean while dashing and gentle breathing at rest.
     /// Works on plain joint transforms, so no Animator or rig is needed.
     /// In the rest pose the arms hang down; rotating a shoulder by a negative X angle raises the arm forward.
     /// </summary>
@@ -37,6 +37,7 @@ namespace NomadChef.Player
         [SerializeField] private float chopsPerSecond = 6f;
         [SerializeField] private float chopAngle = 35f;
         [SerializeField] private float scrubsPerSecond = 3f;
+        [SerializeField] private float throwDuration = 0.35f;
         [SerializeField] private float poseSharpness = 14f;
 
         private PlayerController player;
@@ -44,12 +45,23 @@ namespace NomadChef.Player
         private Vector3 lastPosition;
         private float walkPhase;
         private float walkBlend;
+        private float throwTimeLeft;
 
         private void Awake()
         {
             player = GetComponent<PlayerController>();
             torsoRest = torso.localPosition;
             lastPosition = transform.position;
+        }
+
+        private void OnEnable() => ThrownItem.AnyLaunched += OnThrown;
+
+        private void OnDisable() => ThrownItem.AnyLaunched -= OnThrown;
+
+        private void OnThrown(PlayerController thrower)
+        {
+            if (thrower == player)
+                throwTimeLeft = throwDuration;
         }
 
         private void LateUpdate()
@@ -79,15 +91,27 @@ namespace NomadChef.Player
             hipLeft.localRotation = Quaternion.Euler(stride * legSwing * walkBlend, 0f, 0f);
             hipRight.localRotation = Quaternion.Euler(-stride * legSwing * walkBlend, 0f, 0f);
 
+            throwTimeLeft -= dt;
             ArmTargets(stride, out Quaternion left, out Quaternion right, out float headTilt);
-            shoulderLeft.localRotation = Quaternion.Slerp(shoulderLeft.localRotation, left, blend);
-            shoulderRight.localRotation = Quaternion.Slerp(shoulderRight.localRotation, right, blend);
+            float armBlend = throwTimeLeft > 0f ? 1f : blend; // a throw snaps instead of easing
+            shoulderLeft.localRotation = Quaternion.Slerp(shoulderLeft.localRotation, left, armBlend);
+            shoulderRight.localRotation = Quaternion.Slerp(shoulderRight.localRotation, right, armBlend);
             head.localRotation = Quaternion.Slerp(head.localRotation, Quaternion.Euler(headTilt, 0f, -stride * 2f * walkBlend), blend);
         }
 
         private void ArmTargets(float stride, out Quaternion left, out Quaternion right, out float headTilt)
         {
             headTilt = 0f;
+
+            if (throwTimeLeft > 0f)
+            {
+                // Overhand throw: wind the right arm up overhead, then snap it forward and down.
+                float t = 1f - throwTimeLeft / throwDuration;
+                float angle = t < 0.35f ? Mathf.Lerp(-60f, -165f, t / 0.35f) : Mathf.Lerp(-165f, -35f, (t - 0.35f) / 0.65f);
+                right = Quaternion.Euler(angle, 0f, 0f);
+                left = Quaternion.Euler(-45f, 0f, -10f);
+                return;
+            }
 
             if (player.SelectedCounter is IWorkStation station && station.IsWorkedBy(player))
             {

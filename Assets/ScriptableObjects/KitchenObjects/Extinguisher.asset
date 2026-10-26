@@ -16,3 +16,4 @@ MonoBehaviour:
   displayName: Extinguisher
   iconColor: {r: 0.86, g: 0.12999997, b: 0.09999997, a: 1}
   canBeTrashed: 0
+  canBeThrown: 0

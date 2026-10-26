@@ -16,3 +16,4 @@ MonoBehaviour:
   displayName: Plate
   iconColor: {r: 1, g: 1, b: 1, a: 1}
   canBeTrashed: 0
+  canBeThrown: 0

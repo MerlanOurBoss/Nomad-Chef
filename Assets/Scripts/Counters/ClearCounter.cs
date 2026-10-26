@@ -16,5 +16,7 @@ namespace NomadChef.Counters
         }
 
         public override void Interact(PlayerController player) => SwapWithPlayer(player);
+
+        public override bool TryCatch(KitchenObject item) => CatchOnTop(item);
     }
 }

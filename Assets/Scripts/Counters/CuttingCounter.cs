@@ -37,6 +37,9 @@ namespace NomadChef.Counters
             }
         }
 
+        // Nothing is being chopped when a thrown item lands (an empty board has no progress), so no reset is needed.
+        public override bool TryCatch(KitchenObject item) => CatchOnTop(item);
+
         public override void InteractAlternate(PlayerController player)
         {
             if (IsChopping || GetCurrentRecipe() == null)

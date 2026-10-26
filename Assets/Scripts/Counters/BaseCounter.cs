@@ -74,6 +74,27 @@ namespace NomadChef.Counters
             }
         }
 
+        /// <summary>
+        /// A thrown item hit this counter. Returns false if the counter won't take it (the item is then lost).
+        /// Counters refuse by default; worktops, crates, boards, the kazan and the bin opt in.
+        /// </summary>
+        public virtual bool TryCatch(KitchenObject item) => false;
+
+        /// <summary>Catch rule for worktops: land on an empty top, or onto a plate that accepts it.</summary>
+        protected bool CatchOnTop(KitchenObject item)
+        {
+            if (IsOnFire)
+                return false;
+
+            if (!this.HasKitchenObject())
+            {
+                item.SetParent(this);
+                return true;
+            }
+
+            return TryCombineOnPlate(item, KitchenObject);
+        }
+
         /// <summary>Puts one of the two items onto the other if that one is a plate that accepts it.</summary>
         protected static bool TryCombineOnPlate(KitchenObject a, KitchenObject b)
         {

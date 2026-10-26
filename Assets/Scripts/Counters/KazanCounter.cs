@@ -44,13 +44,8 @@ namespace NomadChef.Counters
         {
             if (!this.HasKitchenObject())
             {
-                if (player.HasKitchenObject() && TryFindRecipe(player.KitchenObject.Data, out CookingRecipeSO found, out State startState))
-                {
-                    player.KitchenObject.SetParent(this);
-                    recipe = found;
-                    SetState(startState);
-                    timer = KitchenObject.HeatTime;
-                }
+                if (player.HasKitchenObject())
+                    TryPutIn(player.KitchenObject);
             }
             else if (!player.HasKitchenObject())
             {
@@ -68,6 +63,21 @@ namespace NomadChef.Counters
                 recipe = null;
                 SetState(State.Idle);
             }
+        }
+
+        public override bool TryCatch(KitchenObject item) => !IsOnFire && !this.HasKitchenObject() && TryPutIn(item);
+
+        /// <summary>Starts cooking the item if this kazan has a recipe for it, resuming any earlier progress.</summary>
+        private bool TryPutIn(KitchenObject item)
+        {
+            if (!TryFindRecipe(item.Data, out CookingRecipeSO found, out State startState))
+                return false;
+
+            item.SetParent(this);
+            recipe = found;
+            SetState(startState);
+            timer = item.HeatTime;
+            return true;
         }
 
         private void Update()

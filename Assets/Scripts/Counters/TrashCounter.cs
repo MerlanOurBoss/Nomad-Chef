@@ -16,5 +16,11 @@ namespace NomadChef.Counters
             else if (player.KitchenObject.Data.CanBeTrashed)
                 player.KitchenObject.DestroySelf();
         }
+
+        public override bool TryCatch(KitchenObject item)
+        {
+            item.DestroySelf();
+            return true;
+        }
     }
 }

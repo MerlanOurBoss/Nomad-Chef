@@ -27,5 +27,7 @@ namespace NomadChef.Counters
 
             SwapWithPlayer(player);
         }
+
+        public override bool TryCatch(KitchenObject item) => CatchOnTop(item);
     }
 }
