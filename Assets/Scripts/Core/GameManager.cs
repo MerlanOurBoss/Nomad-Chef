@@ -2,12 +2,14 @@ using System;
 using NomadChef.Orders;
 using NomadChef.Player;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace NomadChef
 {
     /// <summary>
     /// Runs one level: countdown, timed play with orders, then game over with score and stars.
+    /// Esc or a gamepad's Start pauses (freezing time and audio) until pressed again.
     /// On the game over screen any player can press Interact to replay or Dash to go back to the menu.
     /// </summary>
     public class GameManager : MonoBehaviour
@@ -32,15 +34,20 @@ namespace NomadChef
         private State state;
         private float timer;
         private int score;
+        private int resumedFrame = -1;
 
         public static GameManager Instance { get; private set; }
 
         public event Action<State> StateChanged;
         public event Action<int> ScoreChanged;
+        public event Action<bool> PausedChanged;
 
         public State CurrentState => state;
         public int Score => score;
-        public bool CanPlayersAct => state == State.Playing;
+        public bool IsPaused { get; private set; }
+
+        // The button press that resumes the game must not also count as a chef action.
+        public bool CanPlayersAct => state == State.Playing && !IsPaused && Time.frameCount > resumedFrame;
         public bool CanRestart => state == State.GameOver && timer >= restartDelay;
         public float CountdownRemaining => state == State.Countdown ? timer : 0f;
         public float LevelTimeRemaining => state switch
@@ -50,6 +57,11 @@ namespace NomadChef
             _ => 0f,
         };
         public int MaxStars => starThresholds.Length;
+
+        /// <summary>Best stars ever earned in the given level scene (0 if never played).</summary>
+        public static int GetBestStars(string sceneName) => PlayerPrefs.GetInt(BestStarsKey(sceneName), 0);
+
+        private static string BestStarsKey(string sceneName) => "BestStars_" + sceneName;
 
         public int Stars
         {
@@ -87,6 +99,10 @@ namespace NomadChef
         {
             if (Instance == this)
                 Instance = null;
+
+            // Never leave the next scene frozen.
+            Time.timeScale = 1f;
+            AudioListener.pause = false;
         }
 
         private void Start()
@@ -96,6 +112,11 @@ namespace NomadChef
 
         private void Update()
         {
+            if (state != State.GameOver && PausePressed())
+                SetPaused(!IsPaused);
+            if (IsPaused)
+                return;
+
             switch (state)
             {
                 case State.Countdown:
@@ -115,11 +136,41 @@ namespace NomadChef
                     if (!CanRestart)
                         break;
                     if (AnyPlayerPressed(p => p.InteractPressedThisFrame))
-                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                        Restart();
                     else if (AnyPlayerPressed(p => p.DashPressedThisFrame))
-                        SceneManager.LoadScene(mainMenuSceneName);
+                        QuitToMenu();
                     break;
             }
+        }
+
+        public void SetPaused(bool paused)
+        {
+            if (paused == IsPaused)
+                return;
+
+            IsPaused = paused;
+            Time.timeScale = paused ? 0f : 1f;
+            AudioListener.pause = paused;
+            if (!paused)
+                resumedFrame = Time.frameCount;
+            PausedChanged?.Invoke(paused);
+        }
+
+        public void Restart() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+        public void QuitToMenu() => SceneManager.LoadScene(mainMenuSceneName);
+
+        // Read straight from the devices so any player, joined or not, can pause.
+        private static bool PausePressed()
+        {
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+                return true;
+            foreach (Gamepad pad in Gamepad.all)
+            {
+                if (pad.startButton.wasPressedThisFrame)
+                    return true;
+            }
+            return false;
         }
 
         private void SetState(State newState)
@@ -132,6 +183,14 @@ namespace NomadChef
                 _ => 0f,
             };
             orderManager.enabled = state == State.Playing;
+
+            if (state == State.GameOver)
+            {
+                string key = BestStarsKey(SceneManager.GetActiveScene().name);
+                PlayerPrefs.SetInt(key, Mathf.Max(PlayerPrefs.GetInt(key, 0), Stars));
+                PlayerPrefs.Save();
+            }
+
             StateChanged?.Invoke(state);
         }
 

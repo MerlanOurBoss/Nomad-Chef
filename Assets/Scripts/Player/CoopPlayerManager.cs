@@ -54,7 +54,8 @@ namespace NomadChef.Player
 
         private void OnAnyButtonPress(InputControl control)
         {
-            if (players.Count >= maxPlayers)
+            // Enter / Space / A also press pause-menu buttons; they must not join a player then.
+            if (players.Count >= maxPlayers || (GameManager.Instance != null && GameManager.Instance.IsPaused))
                 return;
 
             switch (control.device)
