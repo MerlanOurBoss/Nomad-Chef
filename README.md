@@ -9,7 +9,7 @@ Built with **Unity 6 (6000.6.5f1)**, the Universal Render Pipeline and the new I
 ## Play
 
 1. Open the project in Unity 6000.6.5f1.
-2. Open `Assets/Scenes/MainMenu.unity` and press Play.
+2. Open `Assets/Scenes/MainMenu.unity`, press Play, and pick a level.
 3. Click inside the Game view so it receives keyboard input.
 
 A round lasts 3 minutes. Serve orders before the customers lose patience; fast service earns tips,
@@ -17,12 +17,13 @@ expired orders cost points. Stars are awarded at 40, 100 and 160 points.
 
 ### Controls
 
-| | Move | Pick up / put down | Use (chop, wash, spray) | Dash | Join |
+| | Move | Pick up / put down | Use (chop, wash, spray, throw) | Dash | Join |
 |---|---|---|---|---|---|
 | Player 1 (keyboard left) | WASD | Space | F | Left Shift | starts in the game |
 | Player 2 (keyboard right) | Arrow keys | Enter | `/` | Right Shift | press Enter |
 | Gamepads (up to 4 players) | Left stick / D-pad | A | X | B / Right trigger | press any button |
 
+**Esc / Start** pauses the round (Resume, Restart, Main menu).
 On the game-over screen: **Space / Enter / A** plays again, **Shift / B** returns to the menu.
 
 ## Gameplay
@@ -48,15 +49,20 @@ On the game-over screen: **Space / Enter / A** plays again, **Shift / B** return
 - **Sink**: drop dirty plates in, press *Use* once, and clean plates go back to the rack.
 - **Fire**: spreads to neighbouring counters. Hold *Use* with the extinguisher to put it out.
 - **Bin**: throws food away and empties plates; plates and tools can't be thrown away.
+- **Throwing**: press *Use* while holding an ingredient to throw it about 4 m. An empty-handed
+  teammate catches it; a worktop, crate top, cutting board, plate or the right kazan/pan takes it;
+  the bin destroys it. Anything else (the floor, a full counter, the caravan gap) loses it.
+  Plates and the extinguisher can't be thrown.
 
 ## Project layout
 
 ```
 Assets/
-  Scenes/              MainMenu (first in build), Kitchen_Greybox (the level)
+  Scenes/              MainMenu (first in build), Kitchen_Greybox (Yurt Kitchen), Caravan (Steppe Caravan)
   Scripts/
     Core/              GameManager (countdown, timer, score, stars), shared interfaces
-    Player/            PlayerController, CoopPlayerManager (joining), ChefAnimator (procedural animation)
+    Player/            PlayerController, CoopPlayerManager (joining), ChefAnimator (procedural animation), ThrownItem
+    Level/             CaravanCart (moving carts)
     Counters/          all stations: counters, crates, cutting board, kazan/pan, sink, delivery, fire
     KitchenObjects/    items, plates, recipe ScriptableObject types, extinguisher
     Orders/            dishes, orders, OrderManager
@@ -121,9 +127,9 @@ The `com.coplaydev.unity-mcp` package is an editor-only bridge for AI tooling; t
 
 ## Status and ideas
 
-One playable level, four dishes, 1–4 local players. Ideas for next steps:
+Two levels (Yurt Kitchen and Steppe Caravan, whose two carts drift apart and back together),
+four dishes, 1–4 local players, best stars saved per level. Ideas for next steps:
 
-- A second level with a twist, such as a caravan kitchen split across two moving carts
-- Level select, with stars saved per level
+- More levels and twists
 - More dishes and stations (baursak and a deep fryer, plov, kumis)
 - Real audio recordings
